@@ -1,0 +1,23 @@
+{
+  "name": "neurons-pages",
+  "version": "0.0.1",
+  "homepage": "https://github.com/platdesign/neurons-pages",
+  "authors": [
+    "platdesign"
+  ],
+  "main": "module.php",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "vendor",
+    "test",
+    "tests"
+  ],
+  "dependencies":{
+	  "neurons":"*",
+	  "neurons-router":"*",
+	  "neurons-fs":"*"
+  }
+}
