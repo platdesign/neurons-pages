@@ -6,6 +6,9 @@ use nrns;
 
 class pagesProvider extends nrns\Provider {
 	
+	private $templateFilename = 'index.php';
+	private $controllerFilename = 'controller.php';
+	
 	public function __construct($fs, $routeProvider, $rootScope, $injectionProvider, $response) {
 		$this->fs = $fs;
 		$this->routeProvider = $routeProvider;
@@ -55,6 +58,27 @@ class pagesProvider extends nrns\Provider {
 		
 	}
 	
+	public function notFound($route) {
+		$this->routeProvider->otherwise(function($request)use($route){
+			$request->redirectRoute($route);
+		});
+	}
+	
+	
+	public function setTemplateFilename($filename) {
+		$this->templateFilename = $filename;
+	}
+	
+	public function setControllerFilename($filename) {
+		$this->controllerFilename = $filename;
+	}
+	
+	
+	
+	
+	
+	
+	
 	private function createView($scope) {
 		$view = $this->injectionProvider->invoke('pages\\view', ['scope'=>$scope]);
 		$view->setGlobal('childView', null);
@@ -71,14 +95,13 @@ class pagesProvider extends nrns\Provider {
 		
 		foreach($way as $key => $dir) {
 
-			if( $dir->exists('controller.php') ) {
-				$controller = $dir->find('controller.php')->import();
-				
+			if( $dir->exists( $this->controllerFilename ) ) {
+				$controller = $dir->find( $this->controllerFilename )->import();
 				$this->injectionProvider->invoke($controller, ['scope'=>$scope]);
 			}
 			
-			if( $dir->exists('template.php') ) {
-				$view->templatePath( $dir->find('template.php') );
+			if( $dir->exists( $this->templateFilename ) ) {
+				$view->templatePath( $dir->find( $this->templateFilename ) );
 			}
 			
 			
@@ -114,11 +137,7 @@ class pagesProvider extends nrns\Provider {
 		return array_reverse($way);
 	}
 
-	public function notFound($route) {
-		$this->routeProvider->otherwise(function($request)use($route){
-			$request->redirectRoute($route);
-		});
-	}
+	
 }
 
 
