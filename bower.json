@@ -18,6 +18,7 @@
   "dependencies":{
 	  "neurons":"*",
 	  "neurons-router":"*",
-	  "neurons-fs":"*"
+	  "neurons-fs":"*",
+	  "neurons-snippets":"*"
   }
 }

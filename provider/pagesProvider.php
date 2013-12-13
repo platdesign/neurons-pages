@@ -11,12 +11,13 @@ class pagesProvider extends nrns\Provider {
 	private $viewGlobals = [];
 	
 	
-	public function __construct($fs, $routeProvider, $rootScope, $injectionProvider, $response) {
+	public function __construct($fs, $routeProvider, $rootScope, $injectionProvider, $response, $templateProvider) {
 		$this->fs = $fs;
 		$this->routeProvider = $routeProvider;
 		$this->rootScope = $rootScope;
 		$this->injectionProvider = $injectionProvider;
 		$this->response = $response;
+		$this->templateProvider = $templateProvider;
 	}
 	
 	public function scan($dir, $baseRoute='/', $baseDir=null) {
@@ -84,14 +85,17 @@ class pagesProvider extends nrns\Provider {
 	
 	
 	private function createView($scope) {
-		$view = $this->injectionProvider->invoke('pages\\view', ['scope'=>$scope]);
-		$view->setGlobal('childView', null);
+		
+		$template = $this->templateProvider->createTemplate($scope);
+		
+		
+		$template->setGlobal('childView', null);
 		
 		foreach($this->viewGlobals as $key => $val) {
-			$view->setGlobal($key, $val);
+			$template->setGlobal($key, $val);
 		}
 		
-		return $view;
+		return $template;
 	}
 	
 	public function renderPage($baseDir, $routeDir) {
