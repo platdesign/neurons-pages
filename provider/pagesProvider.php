@@ -8,6 +8,8 @@ class pagesProvider extends nrns\Provider {
 	
 	private $templateFilename = 'index.php';
 	private $controllerFilename = 'controller.php';
+	private $viewGlobals = [];
+	
 	
 	public function __construct($fs, $routeProvider, $rootScope, $injectionProvider, $response) {
 		$this->fs = $fs;
@@ -73,7 +75,9 @@ class pagesProvider extends nrns\Provider {
 		$this->controllerFilename = $filename;
 	}
 	
-	
+	public function addViewGlobal($key, $val) {
+		$this->viewGlobals[$key] = $val;
+	}
 	
 	
 	
@@ -82,6 +86,11 @@ class pagesProvider extends nrns\Provider {
 	private function createView($scope) {
 		$view = $this->injectionProvider->invoke('pages\\view', ['scope'=>$scope]);
 		$view->setGlobal('childView', null);
+		
+		foreach($this->viewGlobals as $key => $val) {
+			$view->setGlobal($key, $val);
+		}
+		
 		return $view;
 	}
 	
@@ -92,9 +101,12 @@ class pagesProvider extends nrns\Provider {
 		$way = $this->findWayFromTo($baseDir, $routeDir);
 		$length = count($way);
 		
+		$doc = \html::doc();
+		
 		
 		foreach($way as $key => $dir) {
-
+			$view->setGlobal('doc', $doc);
+			
 			if( $dir->exists( $this->controllerFilename ) ) {
 				$controller = $dir->find( $this->controllerFilename )->import();
 				$this->injectionProvider->invoke($controller, ['scope'=>$scope]);
@@ -117,8 +129,11 @@ class pagesProvider extends nrns\Provider {
 			
 		}
 		
+		
+		$doc->body->setContent($rootView);
+		
 		$this->response->ContentType('HTML');
-		$this->response->setBody( $rootView );
+		$this->response->setBody( $doc );
 		
 	}
 	
