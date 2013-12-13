@@ -27,7 +27,7 @@ class pagesProvider extends nrns\Provider {
 			$dir = $this->fs->find($dir);
 		}
 		
-		if(!$baseDir) {
+		if(!isset($baseDir)) {
 			$baseDir = $dir;
 			
 			$this->routeProvider->when($baseRoute, function($route)use($baseDir){
