@@ -58,7 +58,7 @@ class pagesProvider extends nrns\Provider {
 			
 			
 		}
-		
+		return $this;
 	}
 	
 	public function notFound($route) {
