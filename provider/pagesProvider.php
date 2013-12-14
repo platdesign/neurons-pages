@@ -134,7 +134,7 @@ class pagesProvider extends nrns\Provider {
 			
 		}
 		
-		$doc->head->setBase( $this->request->getBase() );
+		$doc->head->setBase( $this->request->getBase()."/" );
 		$doc->body->setContent($rootView);
 		
 		$this->response->ContentType('HTML');
