@@ -10,11 +10,12 @@
 	class template {
 		private $templatePath;
 		
-		public function __construct($scope, $templateProvider, $snippetProvider) {
+		public function __construct($scope, $templateProvider, $snippetProvider, $fs) {
 			$this->setGlobal('scope', $scope);
 			
 			$this->templateProvider = $templateProvider;
 			$this->snippetProvider = $snippetProvider;
+			$this->fs = $fs;
 		}
 		
 		public function setGlobal($key, $val) {
@@ -49,6 +50,19 @@
 		
 		public function snippet($ns, $name, $globals=[]) {
 			echo $this->snippetProvider->parse($ns, $name, $globals);
+		}
+		
+		public function inc($file, $parseAs='php') {
+			if( $file = $this->templatePath->parent()->find($file) ) {
+				
+				if($parseAs !== 'php') {
+					echo $file->parseAs($parseAs);
+				} else {
+					echo $this->file_get_contents($file, $this->globals);
+				}
+				
+				
+			}
 		}
 		
 	}

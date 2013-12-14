@@ -76,7 +76,7 @@ class pagesProvider extends nrns\Provider {
 		$this->controllerFilename = $filename;
 	}
 	
-	public function addViewGlobal($key, $val) {
+	public function addTemplateGlobal($key, $val) {
 		$this->viewGlobals[$key] = $val;
 	}
 	
