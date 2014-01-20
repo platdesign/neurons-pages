@@ -17,6 +17,14 @@ class templateProvider extends nrns\Provider {
 		$temp = $this->injectionProvider->invoke('pages\\template', ['scope'=>$scope]);
 		return $temp;
 	}
+
+	public function setActive($template) {
+		$this->service = $template;
+	}
+
+	public function getService() {
+		return $this->service;
+	}
 	
 }
 

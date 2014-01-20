@@ -6,7 +6,6 @@
 	
 	
 	
-	
 	class template {
 		private $templatePath;
 		
@@ -18,6 +17,8 @@
 			$this->fs = $fs;
 		}
 		
+		
+
 		public function setGlobal($key, $val) {
 			$this->globals[$key] = $val;
 		}
@@ -27,24 +28,31 @@
 		}
 		
 		public function __tostring() {
-			return (string) $this->render();
+			try {
+				return (string) $this->render();
+			} catch(\Exception $e) {
+				return $e->getMessage();
+			}
+			
 		}
 		
 		public function render() {
 			if($this->templatePath) {
+				$this->templateProvider->setActive($this);
 				return $this->file_get_contents($this->templatePath, $this->globals);
 			}
 		}
 		
 		public function file_get_contents($file, $globals) {
 			if( file_exists($file) ) {
+				global $scope;
 				extract($globals);
 				unset($globals);
 				ob_start();
+
 					require $file;
-				$content = ob_get_contents();
-				ob_end_clean();
-				return $content;
+				
+				return ob_get_clean();
 			}
 		}
 		
