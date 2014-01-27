@@ -11,7 +11,7 @@ class pagesProvider extends nrns\Provider {
 	private $viewGlobals = [];
 	
 	
-	public function __construct($request, $fs, $routeProvider, $rootScope, $injectionProvider, $response, $templateProvider) {
+	public function __construct($nrns, $request, $fs, $routeProvider, $rootScope, $injectionProvider, $response, $templateProvider) {
 		$this->fs = $fs;
 		$this->routeProvider = $routeProvider;
 		$this->rootScope = $rootScope;
@@ -19,46 +19,56 @@ class pagesProvider extends nrns\Provider {
 		$this->response = $response;
 		$this->templateProvider = $templateProvider;
 		$this->request = $request;
+		$this->nrns = $nrns;
 	}
 	
-	public function scan($dir, $baseRoute='/', $baseDir=null) {
-		
-		
-		if(is_string($dir)) {
-			$dir = $this->fs->find($dir);
+	public function scan($dirPath, $baseRoute='/', $baseDir=null) {
+		$registry = $this->injectionProvider->service('registry');
+		$reg = $registry('neurons.pages');
+
+		$routes = [];
+		$dir = $this->fs->find($dirPath);
+
+
+		if( $this->nrns->devMode ) {
+
+			if( $dir ) {
+
+				$tmp = $dir->dirs(true);
+
+
+
+				foreach($tmp as $item) {
+					if($item->isDir()) {
+						$path = str_replace($dir, '', $item->getPathname());
+						$route = str_replace('__', ':', $path);
+
+						$routes[] = (object) [
+							'route'	=>	$route,
+							'path'	=>	$path
+						];
+					}
+				}
+
+				$reg->set('routes', $routes);
+
+			} else {
+				throw nrns::Exception('PagesProvider: Dir not found ('.$dirPath.')');
+			}
+		} else {
+			$routes = $reg->get('routes');
 		}
 		
-		if(!isset($baseDir)) {
-			$baseDir = $dir;
-			
-			$this->routeProvider->when($baseRoute, function($route)use($baseDir){
-				$this->renderPage($baseDir, $baseDir);
+		
+
+		foreach($routes as $route) {
+			$this->routeProvider->when($route->route, function()use($route, $dir){
+				$this->renderPage($dir, $route->path);
 			});
 		}
+
 		
 		
-		foreach($dir->items() as $item) {
-			
-			
-			if($item->isDir()) {
-				
-				$filename = $item->getFilename();
-				
-				if(substr($filename, 0, 1) !== '!') {
-					$route = str_replace("__", ":", $baseRoute.'/'.$item->getFilename());
-				
-					$this->routeProvider->when($route, function($route)use($baseDir, $item){
-			
-						$this->renderPage($baseDir, $item);
-					});
-				
-					$this->scan($item, $route, $baseDir);
-				}
-				
-			}
-			
-			
-		}
 		return $this;
 	}
 	
@@ -100,6 +110,12 @@ class pagesProvider extends nrns\Provider {
 	}
 	
 	public function renderPage($baseDir, $routeDir) {
+
+		
+
+		$routeDir = $baseDir->find($routeDir);
+
+
 		$scope = $this->rootScope;
 		$rootView = $view = $this->createView($scope);
 		
@@ -113,6 +129,7 @@ class pagesProvider extends nrns\Provider {
 			$view->setGlobal('doc', $doc);
 			
 			if( $dir->exists( $this->controllerFilename ) ) {
+
 				$controller = $dir->find( $this->controllerFilename )->import();
 				$this->injectionProvider->invoke($controller, ['scope'=>$scope]);
 			}
